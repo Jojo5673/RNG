@@ -44,7 +44,7 @@
 // DEFINE VARIABLES FOR TWO LEDs AND TWO BUTTONs. LED_A, LED_B, BTN_A , BTN_B
 #define LED_A 4
 /* Complete all others */
-#define LED_B 0
+#define LED_B 16
 #define BTN_A 2
 
 
@@ -56,8 +56,8 @@ static const char* mqtt_server    = "www.yanacreations.com";                // B
 static uint16_t mqtt_port         = 1883;
 
 // WIFI CREDENTIALS
-const char* ssid                  = "One"; // Add your Wi-Fi ssid
-const char* password              = "g5dnTphrhqpw"; // Add your Wi-Fi password 
+const char* ssid                  = "MonaConnect"; // Add your Wi-Fi ssid
+const char* password              = ""; // Add your Wi-Fi password 
 
 
 // TASK HANDLES 
@@ -112,9 +112,14 @@ void setup() {
   pinMode(g, OUTPUT);
   pinMode(dp, OUTPUT);
 
+  pinMode(BTN_A, INPUT_PULLUP);
+  pinMode(LED_A, OUTPUT);
+  pinMode(LED_B, OUTPUT);
+
   initialize();           // INIT WIFI, MQTT & NTP 
   vButtonCheckFunction(); // UNCOMMENT IF USING BUTTONS THEN ADD LOGIC FOR INTERFACING WITH BUTTONS IN THE vButtonCheck FUNCTION
 
+  Display(8);
 }
   
 
@@ -210,25 +215,30 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
     if(strcmp(led, "LED A") == 0){
       /*Add code to toggle LED A with appropriate function*/
+      toggleLED(LED_A);
     }
     if(strcmp(led, "LED B") == 0){
       /*Add code to toggle LED B with appropriate function*/
+      toggleLED(LED_B);
     }
 
     // PUBLISH UPDATE BACK TO FRONTEND
     JsonDocument doc; // Create JSon object
-    char message[800]  = {0};
+    char message[1100]  = {0};
 
     // Add key:value pairs to Json object according to below schema
     // ‘{"id": "student_id", "timestamp": 1702212234, "number": 9, "ledA": 0, "ledB": 0}’
-    doc["id"]         = "ID"; // Change to your student ID number
+    doc["id"]         = "620172690"; // Change to your student ID number
     doc["timestamp"]  = getTimeStamp();
+    doc["number"]     = number;
+    doc["ledA"]       = getLEDStatus(LED_A);
+    doc["ledB"]       = getLEDStatus(LED_B);
     /*Add code here to insert all other variabes that are missing from Json object
     according to schema above
     */
 
     serializeJson(doc, message);  // Seralize / Covert JSon object to JSon string and store in char* array  
-    publish("topic", message);    // Publish to a topic that only the Frontend subscribes to.
+    publish(pubtopic, message);    // Publish to a topic that only the Frontend subscribes to.
           
   } 
 
