@@ -61,8 +61,7 @@ class MQTT:
     def publish(self,topic,payload):
         try :
             info = self.client.publish(topic, payload)
-            info.wait_for_publish()
-            return info.is_published()
+            return info.rc == 0
         
         except Exception as e:
             print(f"MQTT: Publish failed {str(e)}")
@@ -103,6 +102,7 @@ class MQTT:
         
              
             print(update)
+            self.publish("620172690_sub", payload)
 
         except Exception as e:
             print(f"MQTT: toggle Error - {str(e)}")
